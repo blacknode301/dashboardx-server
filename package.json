@@ -1,10 +1,23 @@
 {
-  "name": "dashboardx",
-  "private": true,
+  "name": "dashboardx-server",
   "version": "1.0.0",
+  "private": true,
   "description": "nodejs webview webkit api",
-  "license": "ISC",
-  "author": "",
+  "keywords": [
+    "nodejs",
+    "ws",
+    "api"
+  ],
+  "homepage": "https://github.com/blacknode301/dashboardx-server#readme",
+  "bugs": {
+    "url": "https://github.com/blacknode301/dashboardx-server/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blacknode301/dashboardx-server.git"
+  },
+  "license": "MIT",
+  "author": "Alexandr Astashov <blacknode301@gmail.com>",
   "type": "commonjs",
   "main": "app.js",
   "scripts": {
@@ -12,10 +25,10 @@
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
-  "devDependencies": {
-    "nodemon": "^3.1.10"
-  },
   "dependencies": {
     "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }
