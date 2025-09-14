@@ -1,5 +1,16 @@
-let ws = new WebSocket('ws://' + '127.0.0.1' + ':3000');
+const ws = new WebSocket('ws://' + '127.0.0.1' + ':3000');
 
+const db = {
+  contacts: undefined,
+};
+
+ws.onmessage = (event) => {
+  androidBridge.showToast('WS сообщение: ' + event.data);
+};
+
+function sendMessageToServer(msg) {
+  ws.send('Сообщение от JS: ' + msg);
+}
 function sendContactsToServer(jsonString) {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', 'http://127.0.0.1:3000/contacts', true); // URL сервера
@@ -19,38 +30,31 @@ function sendContactsToServer(jsonString) {
     xhr.send(jsonString); // отправляем JSON-строку
 }
 
-
-let db = {
-  contacts: undefined,
-};
-/*
-function onMessageFromAndroid(msg) {
-    alert('Сообщение от Android: ' + msg);
-};
-*/
 reloadPage.addEventListener('click', (e) => {
-  // Полная перезагрузка с кэшем
   window.location.reload();
 });
 androidBridgeShowToast.addEventListener('click', (e) => {
-  //androidBridge.showToast('Привет с Node.js страницы!');
-  androidBridge.showToast(JSON.stringify(db.contacts));
-  sendContactsToServer(JSON.stringify(db.contacts));
+  //androidBridge.showToast(JSON.stringify(db.contacts));
+  androidBridge.showToast('Это простое сообщение!');
 });
+androidBridgeSendToast.addEventListener('click', (e) => {
+  sendMessageToServer('Я получил твоё сообщение!');
+  androidBridge.showToast('Сообщение отправлено!');
+});
+
 androidBridgeGetContacts.addEventListener('click', (e) => {
-  var contacts = JSON.parse(androidBridge.getContacts());
-  db.contacts = contacts;
-  androidBridge.showToast(JSON.stringify(contacts));
+  db.contacts = JSON.parse(androidBridge.getContacts());
+  androidBridge.showToast('Контакты получены!');
+});
+androidBridgeSendContacts.addEventListener('click', (e) => {
+  if (db.contacts == undefined) {
+    androidBridge.showToast('Контакты не были получены, сначала получите контакты!');
+  }
+  else {
+    sendContactsToServer(JSON.stringify(db.contacts));
+    androidBridge.showToast('Контакты отправлены на сервер!');
+  }
 });
 androidBridgeAddContacts.addEventListener('click', (e) => {
   androidBridge.addContacts(JSON.stringify(db.contacts));
 });
-
-ws.onmessage = (event) => {
-  androidBridgeShowToast('WS сообщение: ');
-};
-
-function onMessageFromAndroid(msg) {
-  alert('Android сказал: ' + msg);
-  ws.send('Привет от JS -> WS: ' + msg);
-}
