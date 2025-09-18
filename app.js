@@ -3,8 +3,16 @@ const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs');
 
+const db = {
+  contacts: undefined,
+}
+
+console.log('Code starting in directory:', __dirname);
 const consoleColor = {
-  mFgCyan: '\x1b[36m%s\x1b[0m',
+  red: '\x1b[31m%s\x1b[0m',
+  green: '\x1b[32m%s\x1b[0m',
+  yellow: '\x1b[33m%s\x1b[0m',
+
   Reset: '\x1b[0m',
   Bright: '\x1b[1m',
   Dim: '\x1b[2m',
@@ -29,7 +37,6 @@ const consoleColor = {
   BgCyan: '\x1b[46m',
   BgWhite: '\x1b[47m'
 };
-console.log(consoleColor.mFgCyan, 'Hello, world!');
 const mimeType = {
   "all": {
    "3dm": "x-world/x-3dmf",
@@ -712,8 +719,7 @@ const server = http.createServer((request, response) => {
   response.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
-  console.log('METHOD:', request.method);
-  console.log('URL:', request.url);
+  console.log('Method: ' + request.method, '| URL: ' + request.url);
 
   if (request.method === 'GET') {
     let url, contentType, encoding, result;
@@ -743,7 +749,8 @@ const server = http.createServer((request, response) => {
       response.writeHead(200, { 'Content-Type': contentType });
       response.end(result);
     }
-    catch {
+    catch(error) {
+      console.log(consoleColor.yellow, error.message);
       response.writeHead(200, { 'Content-Type': contentType });
       response.end('Not Found');
     }
@@ -753,19 +760,21 @@ const server = http.createServer((request, response) => {
     let data = '';
     request.on('data', chunk => { data += chunk; });
     request.on('end', () => {
-      console.log('POST данные:', data);
-      console.log('POST тип данных:', typeof(data));
+      //console.log('POST data:', data);
+      //console.log('POST type of data:', typeof(data));
       
       if (request.url == '/contacts') {
         // Преобразуем в строку JSON с красивым форматирование
-        const jsonString = JSON.stringify(JSON.parse(data), null, 2);
+        db.contacts = JSON.parse(data);
+        console.log(db.contacts);
+        const jsonString = JSON.stringify(db.contacts, null, 2);
         // Путь к файлу
         const filePath = path.join(__dirname, '/db/contacts.json');
         
         // Запись в файл (перезаписывает существующий)
         fs.writeFileSync(filePath, jsonString, 'utf8');
         
-        console.log("Файл contacts.json успешно записан!");
+        console.log(consoleColor.green, 'File contacts.json успешно записан!');
       }
       
       response.writeHead(200, { 'Content-Type': 'application/json' });
@@ -786,16 +795,18 @@ const server = http.createServer((request, response) => {
 // WebSocket сервер
 const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws) => {
-  console.log('WS подключен');
+  // Добавить каждого клиента в массив
+  //console.log(consoleColor.green, 'WS client connected: ' + JSON.stringify(ws, null, 2));
+  console.log(consoleColor.green, 'WS client connected');
   ws.send('Добро пожаловать в WebSocket сервер!');
 
   ws.on('message', (msg) => {
-    console.log('WS получил:', msg.toString());
-    ws.send('Эхо: ' + msg.toString());
+    console.log('WS message from client: ' + msg);
+    ws.send(msg.toString());
   });
 });
 
 // Запуск
 server.listen(PORT, HOST, () => {
-  console.log(`HTTP + WS сервер запущен на http://${HOST}:${PORT}`);
+  console.log(consoleColor.green, `HTTP + WS server starting with http://${HOST}:${PORT}`);
 });

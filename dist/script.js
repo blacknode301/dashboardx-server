@@ -1,15 +1,40 @@
 const ws = new WebSocket('ws://' + '127.0.0.1' + ':3000');
 
 const db = {
-  contacts: undefined,
+  content: [
+    'refresh',
+    'home',
+    'call',
+    'phone book',
+    'voice channel',
+    'files cloud',
+    'task editor',
+    'wa bot',
+    'tg bot',
+    'okx api',
+    'settings',
+    'exit',
+  ],
+  contacts: JSON.parse(androidBridge.getContacts()),
 };
 
+function renderNavContent(content) {
+  const button = document.createElement('button');
+  const span = document.createElement('span');
+  var element;
+  for(e in content) {
+    //androidBridge.showToast(content[e]);
+    // copyNode & appendChild
+  }
+};
+renderNavContent(db.content);
+
 ws.onmessage = (event) => {
-  androidBridge.showToast('WS сообщение: ' + event.data);
+  androidBridge.showToast('WS message from server: ' + event.data);
 };
 
 function sendMessageToServer(msg) {
-  ws.send('Сообщение от JS: ' + msg);
+  ws.send(msg);
 }
 function sendContactsToServer(jsonString) {
     const xhr = new XMLHttpRequest();
@@ -30,7 +55,22 @@ function sendContactsToServer(jsonString) {
     xhr.send(jsonString); // отправляем JSON-строку
 }
 
-reloadPage.addEventListener('click', (e) => {
+pageFilesShowNav.addEventListener('click', (e) => {
+  if (nav.style.display == 'flex') {
+    nav.style.display = 'none';
+  }
+  else {
+    nav.style.display = 'flex';
+  }
+});
+pageFilesShowToast.addEventListener('click', (e) => {
+  const result = window.screen.height + ' ' + window.screen.width;
+  // 946
+  // 424
+  androidBridge.showToast(result);
+});
+
+navBtnReloadPage.addEventListener('click', (e) => {
   window.location.reload();
 });
 androidBridgeShowToast.addEventListener('click', (e) => {
